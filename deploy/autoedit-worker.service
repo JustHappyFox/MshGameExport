@@ -1,0 +1,34 @@
+[Unit]
+Description=autoedit.ink worker (ffmpeg pipeline)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=autoedit
+Group=autoedit
+WorkingDirectory=/opt/autoedit
+EnvironmentFile=/etc/autoedit/autoedit.env
+ExecStart=/opt/autoedit/venv/bin/python -m app.worker
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=120
+
+# ffmpeg не должен выжирать весь сервер
+Nice=5
+CPUWeight=60
+IOWeight=60
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/autoedit
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

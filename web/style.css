@@ -1,0 +1,156 @@
+:root {
+  --bg: #17181c;
+  --card: #1f2127;
+  --card-2: #262931;
+  --line: #31353f;
+  --fg: #f2f3f5;
+  --muted: #9198a5;
+  --accent: #7c5cff;
+  --accent-fg: #ffffff;
+  --ok: #3ecf8e;
+  --warn: #ffb84d;
+  --err: #ff6b6b;
+  --radius: 16px;
+}
+
+/* Telegram подсовывает свою палитру — уважаем её, если она есть.
+   Класс висит на :root, иначе светлая схема ниже переопределит те
+   переменные, которые здесь не перечислены. */
+:root.tg-themed {
+  --bg: var(--tg-theme-bg-color, #17181c);
+  --card: var(--tg-theme-secondary-bg-color, #1f2127);
+  --card-2: var(--tg-theme-bg-color, #262931);
+  --line: #31353f;
+  --fg: var(--tg-theme-text-color, #f2f3f5);
+  --muted: var(--tg-theme-hint-color, #9198a5);
+  --accent: var(--tg-theme-button-color, #7c5cff);
+  --accent-fg: var(--tg-theme-button-text-color, #fff);
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 16px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.head h1 { margin: 0 0 6px; font-size: 21px; font-weight: 650; letter-spacing: -0.01em; }
+.sub { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.hidden { display: none !important; }
+
+/* --- зона загрузки --- */
+.drop {
+  cursor: pointer;
+  text-align: center;
+  padding: 30px 18px;
+  border-style: dashed;
+  border-width: 1.5px;
+  transition: border-color .15s, background .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.drop:active { transform: scale(.994); }
+.drop.over { border-color: var(--accent); background: var(--card-2); }
+.drop-icon { color: var(--accent); width: 46px; height: 46px; margin: 0 auto 12px; }
+.drop-icon svg { width: 100%; height: 100%; }
+.drop-title { margin: 0 0 4px; font-weight: 600; font-size: 16px; }
+.drop-hint { margin: 0; color: var(--muted); font-size: 13px; }
+
+/* --- прогресс --- */
+.job-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.job-name {
+  font-weight: 560; font-size: 14px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.job-pct { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+.bar {
+  height: 7px; border-radius: 99px; background: var(--card-2);
+  overflow: hidden; margin: 12px 0 8px;
+}
+.bar-fill {
+  height: 100%; width: 0; border-radius: 99px; background: var(--accent);
+  transition: width .35s ease;
+}
+.job-stage { margin: 0; color: var(--muted); font-size: 13px; }
+
+/* --- результат --- */
+.res-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.badge {
+  font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 99px;
+  background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok);
+}
+.badge.warn { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+.res-cov { font-size: 22px; font-weight: 680; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+.facts { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; font-size: 13.5px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+.warn {
+  margin-top: 13px; padding: 10px 12px; border-radius: 11px; font-size: 13px;
+  background: color-mix(in srgb, var(--warn) 13%, transparent);
+  color: var(--warn);
+}
+.warn p { margin: 0 0 5px; }
+.warn p:last-child { margin: 0; }
+
+.actions { display: flex; gap: 9px; margin-top: 16px; }
+.btn {
+  flex: 1; appearance: none; border: 1px solid var(--line); background: var(--card-2);
+  color: var(--fg); font: inherit; font-weight: 570; font-size: 14px;
+  padding: 11px 14px; border-radius: 12px; cursor: pointer; text-align: center;
+  text-decoration: none; transition: opacity .12s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active { transform: scale(.985); }
+.btn:disabled { opacity: .45; cursor: default; background: transparent; }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+.btn.ghost { background: transparent; margin-top: 11px; color: var(--muted); }
+
+.ttl { margin: 11px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+
+/* --- ошибка --- */
+.error { border-color: color-mix(in srgb, var(--err) 42%, var(--line)); }
+.error p { margin: 0 0 10px; color: var(--err); font-size: 14px; }
+
+/* --- история --- */
+.history h2 { margin: 0 0 11px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.history ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.history li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; }
+.history .h-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history .h-meta { color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.history a { color: var(--accent); text-decoration: none; flex: none; }
+
+.gate p { margin: 0; color: var(--muted); font-size: 14px; }
+
+@media (prefers-color-scheme: light) {
+  :root:not(.tg-themed) {
+    --bg: #f5f6f8; --card: #ffffff; --card-2: #f0f1f4; --line: #e2e4ea;
+    --fg: #16181d; --muted: #6b7280;
+  }
+}

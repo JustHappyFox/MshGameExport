@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17181c">
+<title>autoedit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%237c5cff'/%3E%3Crect x='7' y='12' width='13' height='9' rx='2' fill='%23fff'/%3E%3Cpath d='M22 15l4-2.5v9L22 19z' fill='%23fff'/%3E%3C/svg%3E">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main class="wrap">
+  <header class="head">
+    <h1>Рекламная вставка</h1>
+    <p class="sub">Кадр замирает ровно по центру, поверх играет интеграция, затем видео продолжается.</p>
+  </header>
+
+  <section id="gate" class="card gate hidden">
+    <p id="gate-text">Открой приложение через Telegram.</p>
+  </section>
+
+  <section id="drop" class="card drop">
+    <input type="file" id="file" accept="video/*" hidden>
+    <div class="drop-inner">
+      <div class="drop-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="11" width="28" height="26" rx="4"/>
+          <path d="M33 21l9-5v16l-9-5z"/>
+          <path d="M19 19v10M14 24h10"/>
+        </svg>
+      </div>
+      <p class="drop-title">Выбрать видео</p>
+      <p class="drop-hint" id="drop-hint">или перетащи файл сюда</p>
+    </div>
+  </section>
+
+  <section id="progress" class="card job hidden">
+    <div class="job-head">
+      <span class="job-name" id="job-name"></span>
+      <span class="job-pct" id="job-pct">0%</span>
+    </div>
+    <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+    <p class="job-stage" id="job-stage">в очереди</p>
+  </section>
+
+  <section id="result" class="card result hidden">
+    <div class="res-top">
+      <span class="badge" id="res-badge">порог взят</span>
+      <span class="res-cov" id="res-cov"></span>
+    </div>
+    <dl class="facts" id="res-facts"></dl>
+    <div id="res-warn" class="warn hidden"></div>
+    <div class="actions">
+      <a class="btn primary" id="res-download" href="#" download>Скачать</a>
+      <button class="btn" id="res-send" type="button">Отправить в чат</button>
+    </div>
+    <p class="ttl" id="res-ttl"></p>
+    <button class="btn ghost" id="res-again" type="button">Обработать ещё одно</button>
+  </section>
+
+  <section id="error" class="card error hidden">
+    <p id="error-text"></p>
+    <button class="btn ghost" id="error-again" type="button">Попробовать снова</button>
+  </section>
+
+  <section class="card history hidden" id="history">
+    <h2>Последние</h2>
+    <ul id="history-list"></ul>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
