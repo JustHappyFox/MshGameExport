@@ -1,15 +1,15 @@
 [Unit]
-Description=autoedit.ink telegram bot
+Description=autoedit telegram bot
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=exec
-User=autoedit
-Group=autoedit
-WorkingDirectory=/opt/autoedit
-EnvironmentFile=/etc/autoedit/autoedit.env
-ExecStart=/opt/autoedit/venv/bin/python -m app.bot
+User=__USER__
+Group=__USER__
+WorkingDirectory=__APP_ROOT__
+EnvironmentFile=__APP_ROOT__/autoedit.env
+ExecStart=__APP_ROOT__/venv/bin/python -m app.bot
 Restart=always
 RestartSec=5
 KillSignal=SIGINT
@@ -19,7 +19,8 @@ NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/autoedit
+# бот правит whitelist.txt по командам /allow и /deny
+ReadWritePaths=__APP_ROOT__/data __APP_ROOT__/whitelist.txt
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
 RestrictSUIDSGID=yes

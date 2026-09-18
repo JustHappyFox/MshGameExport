@@ -53,8 +53,12 @@ def sample_video(dst: Path) -> Path:
 
 def main() -> int:
     data_dir = Path(tempfile.mkdtemp(prefix="autoedit-e2e-"))
+    whitelist = data_dir / "whitelist.txt"
+    whitelist.write_text(f"# тестовый вайтлист\n{USER['username']}\n", encoding="utf-8")
     os.environ.update({
-        "AUTOEDIT_DATA_DIR": str(data_dir),
+        "AUTOEDIT_ROOT": str(data_dir),
+        "AUTOEDIT_DATA_DIR": str(data_dir / "data"),
+        "AUTOEDIT_WHITELIST": str(whitelist),
         "BOT_TOKEN": TOKEN,
         "SECRET_KEY": "e2e-secret",
         "PUBLIC_BASE_URL": "https://autoedit.ink",
@@ -81,6 +85,19 @@ def main() -> int:
     r = client.get("/api/config", headers=hdr)
     check(r.status_code == 200 and r.json()["user"]["id"] == USER["id"],
           "верная подпись — 200 и наш пользователь")
+
+    print("\n[1b] вайтлист")
+    outsider = {"X-Telegram-Init-Data":
+                make_init_data(user={"id": 999, "username": "not_in_list"})}
+    r = client.get("/api/config", headers=outsider)
+    check(r.status_code == 401 and "not_in_list" in r.json()["detail"],
+          f"чужой ник не пускается ({r.status_code})")
+    r = client.post("/api/jobs", headers=outsider,
+                    files={"file": ("x.mp4", b"data", "video/mp4")})
+    check(r.status_code == 401, "чужой ник не может загрузить файл")
+    noname = {"X-Telegram-Init-Data": make_init_data(user={"id": 888})}
+    check(client.get("/api/config", headers=noname).status_code == 401,
+          "пользователь без ника не пускается")
 
     print("\n[2] отказы на входе")
     r = client.post("/api/jobs", headers=hdr,

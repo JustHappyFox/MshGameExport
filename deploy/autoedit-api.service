@@ -1,15 +1,15 @@
 [Unit]
-Description=autoedit.ink API (Mini App backend)
+Description=autoedit API (Mini App backend)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=exec
-User=autoedit
-Group=autoedit
-WorkingDirectory=/opt/autoedit
-EnvironmentFile=/etc/autoedit/autoedit.env
-ExecStart=/opt/autoedit/venv/bin/uvicorn app.api:app --host 127.0.0.1 --port 8081 --proxy-headers --forwarded-allow-ips=127.0.0.1 --timeout-keep-alive 75
+User=__USER__
+Group=__USER__
+WorkingDirectory=__APP_ROOT__
+EnvironmentFile=__APP_ROOT__/autoedit.env
+ExecStart=__APP_ROOT__/venv/bin/uvicorn app.api:app --host ${API_HOST} --port ${API_PORT} --proxy-headers --forwarded-allow-ips=127.0.0.1 --timeout-keep-alive 75
 Restart=always
 RestartSec=3
 KillSignal=SIGINT
@@ -19,7 +19,7 @@ NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/autoedit
+ReadWritePaths=__APP_ROOT__/data
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
 RestrictSUIDSGID=yes

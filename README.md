@@ -38,13 +38,53 @@ python3 tools/measure.py --plan видео.mp4   # + план обработки
 python3 tools/measure.py --geometry 720x1280
 ```
 
+## Доступ: вайтлист по никам
+
+Пускает только тех, кто перечислен в `whitelist.txt` рядом с приложением.
+**Пустой список не пускает никого** — забытый пустой файл не должен открывать
+доступ всему интернету.
+
+```
+# по одной записи в строке, комментарии через #
+justhappyfox          # ник, собака необязательна, регистр не важен
+@partner_nick
+t.me/third_one
+id:123456789          # если у человека не задан ник в Telegram
+```
+
+Файл перечитывается сам при каждом изменении — перезапускать сервисы после
+правки не нужно.
+
+Из чата (работает только у владельца, он задаётся `OWNER` в конфиге):
+
+```
+/allow @nickname      можно несколько через пробел
+/deny  @nickname
+/who                  показать весь список
+```
+
+С сервера:
+
+```bash
+autoedit whitelist list
+autoedit whitelist add @nickname другой_ник
+autoedit whitelist remove @nickname
+autoedit whitelist check @nickname
+```
+
+Ник в Telegram человек может сменить сам, и тогда доступ по старому нику
+отвалится, а освободившийся ник теоретически займёт кто-то другой. Если это
+важно — добавляй строкой `id:123456789`: id не меняется никогда. Свой id
+человек увидит в тексте отказа, если попробует зайти без ника.
+
 ## Как работает
 
 | Компонент | Что делает |
 |---|---|
 | `app/api.py` | FastAPI: приём видео из Mini App, статус задачи, подписанные ссылки |
 | `app/worker.py` | отдельный процесс, разбирает очередь, гоняет ffmpeg |
-| `app/bot.py` | aiogram: кнопка Mini App, приём видео прямо в чат |
+| `app/bot.py` | aiogram: кнопка Mini App, приём видео в чат, команды вайтлиста |
+| `app/access.py` | вайтлист: разбор файла, перечитывание на лету |
 | `app/video/probe.py` | геометрия, поворот, звук, поиск чёрных полей |
 | `app/video/banner.py` | покадровый замер вставки по альфа-маске, кеш |
 | `app/video/render.py` | план, сборка, проверка результата |
@@ -62,48 +102,84 @@ python3 tools/measure.py --geometry 720x1280
 
 ## Установка
 
-```bash
-git clone <репозиторий> autoedit && cd autoedit
-sudo bash deploy/install.sh
+Всё живёт в **одной самодостаточной папке** — на сервере крутятся другие боты
+и сервисы, поэтому autoedit не растекается по системным каталогам:
+
+```
+/opt/autoedit/
+├── app/ web/ assets/ tools/   код
+├── venv/                      зависимости
+├── data/                      загрузки, готовые файлы, кеш, база
+├── autoedit.env               конфиг
+├── whitelist.txt              кому можно
+└── bin/autoedit               обёртка для команд
 ```
 
-Скрипт идемпотентный — им же и обновляться. Что он делает: ставит ffmpeg,
-nginx и python, создаёт пользователя `autoedit`, раскладывает код в
-`/opt/autoedit`, данные в `/var/lib/autoedit`, ставит три systemd-юнита, кладёт
-конфиг nginx и прогревает кеш замеров.
+Вне этой папки появляются только три юнита `autoedit-*`, один сайт nginx и
+симлинк `/usr/local/bin/autoedit`. Порт API подбирается свободный сам
+(диапазон 8081–8129), чтобы не столкнуться с соседями.
+
+Собрать архив на своей машине:
+
+```bash
+bash deploy/make_release.sh          # -> dist/autoedit-ГГГГММДД-ЧЧММ.tar.gz
+```
+
+Перенести и поставить:
+
+```bash
+scp dist/autoedit-*.tar.gz root@СЕРВЕР:/tmp/
+ssh root@СЕРВЕР
+tar xzf /tmp/autoedit-*.tar.gz -C /tmp
+bash /tmp/autoedit-*/deploy/install.sh
+```
 
 Дальше руками:
 
-1. Токен от [@BotFather](https://t.me/botfather) в `/etc/autoedit/autoedit.env`:
+1. Токен от [@BotFather](https://t.me/botfather) в `/opt/autoedit/autoedit.env`:
    ```
    BOT_TOKEN=...
-   PUBLIC_BASE_URL=https://autoedit.ink
+   OWNER=твой_ник        # он сможет править вайтлист командами бота
    ```
-2. Сертификат, если его ещё нет:
+2. Себя в вайтлист: `autoedit whitelist add твой_ник`
+3. Сертификат, если его ещё нет:
    ```bash
    certbot certonly --nginx -d autoedit.ink -d www.autoedit.ink
+   ln -sfn /etc/nginx/sites-available/autoedit /etc/nginx/sites-enabled/autoedit
    nginx -t && systemctl reload nginx
    ```
-3. В @BotFather: `/setmenubutton` → бот → URL `https://autoedit.ink/`
-4. `systemctl restart autoedit-api autoedit-worker autoedit-bot`
+4. В @BotFather: `/setmenubutton` → бот → URL `https://autoedit.ink/`
+5. `systemctl restart autoedit-api autoedit-worker autoedit-bot`
 
 DNS: `autoedit.ink` и `www.autoedit.ink` должны смотреть A-записью на сервер.
 
+**Обновление** — тем же архивом и тем же скриптом. Заменяется только код;
+`autoedit.env`, `whitelist.txt`, база и готовые файлы остаются на месте, порт
+не меняется. Если конфиг nginx для домена уже существует, скрипт его не
+перезаписывает и не включает сайт — чтобы не задеть соседний сервис.
+
+Папку можно поставить куда угодно:
+
+```bash
+AUTOEDIT_ROOT=/srv/autoedit AUTOEDIT_DOMAIN=example.com bash deploy/install.sh
+```
+
 ## Настройки
 
-Всё в `/etc/autoedit/autoedit.env`, полный список — в `.env.example`.
+Всё в `/opt/autoedit/autoedit.env`, полный список — в `.env.example`.
 Самое нужное:
 
 | Переменная | По умолчанию | Смысл |
 |---|---|---|
+| `OWNER` | пусто | кто правит вайтлист командами бота: ник или `id:123` |
 | `MIN_COVERAGE` | `0.25` | порог, который проверяет бот рекламодателя |
 | `TARGET_COVERAGE` | `0.2535` | цель при сжатии — чуть выше порога |
 | `CROP_BLACK_BARS` | `1` | срезать чёрные поля до замера |
-| `ALLOWED_USER_IDS` | пусто | пусто = пускать всех, иначе список telegram id |
 | `MAX_UPLOAD_BYTES` | 2 ГБ | держать в согласии с `client_max_body_size` |
 | `LINK_TTL_HOURS` | `48` | сколько живёт ссылка |
 | `RETENTION_HOURS` | `72` | когда удалять файлы |
 | `X264_CRF` | `20` | качество: меньше — лучше и тяжелее |
+| `API_PORT` | подбирается | порт на 127.0.0.1, наружу не торчит |
 
 ## Эксплуатация
 
@@ -125,12 +201,17 @@ curl -s localhost:8081/api/health
 ## Тесты
 
 ```bash
+python3 tests/test_access.py       # вайтлист
 python3 tests/test_e2e.py          # подпись, загрузка, очередь, рендер, ссылки
 python3 tests/test_e2e.py своё.mp4
 ```
 
-Тест поднимает приложение через `TestClient`, гоняет настоящий ffmpeg и
-проверяет 17 пунктов: отказ без подписи и с чужой подписью, отказ по формату и
-пустому файлу, изоляцию задач между пользователями, взятие задачи воркером,
-выдержку порога, отдачу файла, битый и просроченный токены, историю и уборку по
-сроку хранения.
+`test_access.py` — 25 проверок: разбор файла во всех написаниях ника, пустой
+список никого не пускает, перечитывание после правки файла без перезапуска,
+add/remove не затирают комментарии, владелец, связка с подписью Mini App.
+
+`test_e2e.py` — 20 проверок на живом ffmpeg: отказ без подписи, с чужой
+подписью, с ником не из вайтлиста и вовсе без ника, отказ по формату и пустому
+файлу, изоляция задач между пользователями, взятие задачи воркером, выдержка
+порога, отдача файла, битый и просроченный токены, история, уборка по сроку
+хранения.

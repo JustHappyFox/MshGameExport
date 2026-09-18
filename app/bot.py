@@ -14,7 +14,7 @@ from aiogram.types import (
     InlineKeyboardButton, InlineKeyboardMarkup, Message, WebAppInfo,
 )
 
-from . import config, db, security
+from . import access, config, db, security
 
 log = logging.getLogger("autoedit.bot")
 
@@ -31,6 +31,11 @@ def keyboard() -> InlineKeyboardMarkup:
 
 
 async def cmd_start(message: Message) -> None:
+    if not access.is_allowed(message.from_user.id, message.from_user.username):
+        await message.answer(
+            access.denial_reason(message.from_user.id, message.from_user.username)
+        )
+        return
     await message.answer(
         "Вставляю рекламную интеграцию ровно в центр видео.\n\n"
         "Кадр замирает, поверх него играет вставка, потом видео продолжается. "
@@ -44,7 +49,71 @@ async def cmd_start(message: Message) -> None:
     )
 
 
+async def cmd_allow(message: Message) -> None:
+    """/allow @nick — пустить человека. Только для владельца."""
+    if not access.is_owner(message.from_user.id, message.from_user.username):
+        return
+    args = (message.text or "").split()[1:]
+    if not args:
+        await message.answer("Кого пускаем? Например: /allow @nickname")
+        return
+    added, already = [], []
+    for raw in args:
+        try:
+            (added if access.add(raw) else already).append(raw)
+        except ValueError as exc:
+            await message.answer(str(exc))
+            return
+    parts = []
+    if added:
+        parts.append("Добавил: " + ", ".join(added))
+    if already:
+        parts.append("Уже были: " + ", ".join(already))
+    await message.answer("\n".join(parts))
+
+
+async def cmd_deny(message: Message) -> None:
+    """/deny @nick — забрать доступ. Только для владельца."""
+    if not access.is_owner(message.from_user.id, message.from_user.username):
+        return
+    args = (message.text or "").split()[1:]
+    if not args:
+        await message.answer("У кого забираем? Например: /deny @nickname")
+        return
+    removed, missing = [], []
+    for raw in args:
+        try:
+            (removed if access.remove(raw) else missing).append(raw)
+        except ValueError as exc:
+            await message.answer(str(exc))
+            return
+    parts = []
+    if removed:
+        parts.append("Убрал: " + ", ".join(removed))
+    if missing:
+        parts.append("Не было в списке: " + ", ".join(missing))
+    await message.answer("\n".join(parts))
+
+
+async def cmd_who(message: Message) -> None:
+    """/who — показать вайтлист. Только для владельца."""
+    if not access.is_owner(message.from_user.id, message.from_user.username):
+        return
+    wl = access.load(force=True)
+    if wl.is_empty:
+        await message.answer("Вайтлист пуст — доступа нет ни у кого.")
+        return
+    lines = [f"@{n}" for n in sorted(wl.usernames)]
+    lines += [f"id:{i}" for i in sorted(wl.user_ids)]
+    await message.answer(f"В вайтлисте {len(lines)}:\n" + "\n".join(lines))
+
+
 async def cmd_status(message: Message) -> None:
+    if not access.is_allowed(message.from_user.id, message.from_user.username):
+        await message.answer(
+            access.denial_reason(message.from_user.id, message.from_user.username)
+        )
+        return
     jobs = db.list_jobs(message.from_user.id, limit=5)
     if not jobs:
         await message.answer("Задач пока не было.", reply_markup=keyboard())
@@ -68,8 +137,9 @@ async def on_video(message: Message, bot: Bot) -> None:
     obj = message.video or message.document
     if obj is None:
         return
-    if config.ALLOWED_USER_IDS and message.from_user.id not in config.ALLOWED_USER_IDS:
-        await message.answer("Доступ закрыт.")
+    if not access.is_allowed(message.from_user.id, message.from_user.username):
+        await message.answer(access.denial_reason(message.from_user.id,
+                                                  message.from_user.username))
         return
 
     size = obj.file_size or 0
@@ -160,7 +230,20 @@ async def run() -> None:
     dp = Dispatcher()
     dp.message.register(cmd_start, Command("start", "help"))
     dp.message.register(cmd_status, Command("status"))
+    dp.message.register(cmd_allow, Command("allow"))
+    dp.message.register(cmd_deny, Command("deny"))
+    dp.message.register(cmd_who, Command("who"))
     dp.message.register(on_video, F.video | F.document.mime_type.startswith("video/"))
+
+    access.ensure_file()
+    wl = access.load(force=True)
+    if wl.is_empty:
+        log.warning("вайтлист пуст (%s) — доступа нет ни у кого",
+                    config.WHITELIST_PATH)
+    else:
+        log.info("в вайтлисте записей: %d", len(wl.usernames) + len(wl.user_ids))
+    if not config.OWNER:
+        log.warning("OWNER не задан — команды /allow, /deny и /who работать не будут")
 
     log.info("бот запущен, Mini App: %s", config.PUBLIC_BASE_URL)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())

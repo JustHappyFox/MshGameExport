@@ -8,7 +8,7 @@ import json
 import time
 from urllib.parse import parse_qsl
 
-from . import config
+from . import access, config
 
 
 class AuthError(RuntimeError):
@@ -52,12 +52,13 @@ def verify_init_data(init_data: str) -> dict:
     if not isinstance(user_id, int):
         raise AuthError("В initData нет пользователя")
 
-    if config.ALLOWED_USER_IDS and user_id not in config.ALLOWED_USER_IDS:
-        raise AuthError("Доступ закрыт")
+    username = user.get("username")
+    if not access.is_allowed(user_id, username):
+        raise AuthError(access.denial_reason(user_id, username))
 
     return {
         "user_id": user_id,
-        "username": user.get("username"),
+        "username": username,
         "first_name": user.get("first_name"),
         "auth_date": auth_date,
     }
