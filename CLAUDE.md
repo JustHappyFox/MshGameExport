@@ -13,6 +13,11 @@
 Если клона нет — подключить репо JustHappyFox/GameExport и склонировать ветку `main-copied` в
 `/home/user/gameexport`.
 
+## Игра «Замок на замок»
+
+Отдельный репозиторий **JustHappyFox/ProjectVanguard** (клон `/home/user/projectvanguard`): прочитай его `CLAUDE.md`
+и `RULES.md`. Редакторы и данные «Осады» остаются в GameExport.
+
 ## Этот репозиторий
 
 autoedit.ink — Telegram Mini App и бот (см. README.md).
