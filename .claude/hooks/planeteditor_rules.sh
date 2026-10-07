@@ -1,44 +1,23 @@
 #!/bin/bash
-# Правила владельца для ИИ - при старте сессии и после каждого сжатия контекста.
-# Правила живут только в своих репозиториях (копий здесь нет - владелец 07.10): общее и редакторы - GameExport
-# CLAUDE.md, игра - ProjectVanguard CLAUDE.md. Хук печатает их разделы «Главное» (между <!-- выжимка:имя --> и
-# <!-- /выжимка -->, у игры - до конца файла) и карту разделов полных RULES.md. Вывод одного вызова больше ~10 КБ до ИИ
-# не доходит целиком - поэтому каждая часть - свой вызов (settings.json).
-#   planeteditor_rules.sh общее|редактор|игра - раздел «Главное»; map-ge / map-pv - карта разделов полного файла правил
-D="$(cd "$(dirname "$0")/.." && pwd)"
+# Напоминание о правилах владельца - при старте сессии и после каждого сжатия контекста (settings.json, SessionStart).
+# Текст правил не печатает: выжимок нет, правила читаются целиком инструментом Read (владелец 07.10; вывод хука больше
+# ~2 КБ до ИИ не доходит). Печатает только это требование и список файлов «Сети правил» с числом строк.
+# Само правило - GameExport docs/ai/RULES.md, раздел 1.
+D="$(cd "$(dirname "$0")/../.." && pwd)"
 GE=/home/user/gameexport
 PV=/home/user/projectvanguard
-case "$1" in
-  общее|редактор|игра)
-    if [ "$1" = игра ]; then f="$PV/CLAUDE.md"; else f="$GE/CLAUDE.md"; fi
-    if [ -f "$f" ]; then
-      echo "=== ГЛАВНОЕ: $1 ($f; полностью - его RULES.md, карта ниже) ==="
-      awk -v m="<!-- выжимка:$1" 'index($0, m) == 1 {on = 1; next} on && index($0, "<!-- /выжимка") == 1 {exit} on' "$f"
-    else
-      echo "$f: клона нет - подключить репо (add_repo) и склонировать: GameExport - ветка main-copied в $GE,"
-      echo "ProjectVanguard - в $PV"
-    fi
-    ;;
-  map-ge|map-pv)
-    # заголовки разделов полного файла правил: где читать подробно
-    if [ "$1" = map-ge ]; then f="$GE/docs/ai/RULES.md"; else f="$PV/RULES.md"; fi
-    if [ -f "$f" ]; then
-      echo "=== КАРТА РАЗДЕЛОВ $f (номер строки: раздел) - перед работой по теме прочитать раздел ==="
-      python3 -c '
-import re, sys
-prev = False
-for i, line in enumerate(open(sys.argv[1], encoding="utf-8"), 1):
-    h = re.match(r"#{2,3} (.*)", line)
-    if h and not prev:  # продолжение заголовка (следующая строка с #) - пропуск
-        t = re.sub(r"\s*\((замечани[ея]|указание|передал|договорённость)[^:]*:?\s*", " (", h.group(1))
-        print(f"{i}: {t[:46]}")
-    prev = bool(h)
-' "$f"
-    else
-      echo "$f: клона нет - подключить репо (add_repo) и склонировать: GameExport - ветка main-copied в $GE,"
-      echo "ProjectVanguard - в $PV"
-    fi
-    [ "$1" = map-pv ] && echo "Прочие: $PV/CLAUDE.md, docs/REVIEW.md, docs/BRANCHES.md, docs/tasks/README.md, server/README.md; задачи - docs/tasks/, открытые PR."
-    [ "$1" = map-ge ] && echo "Прочие: $GE/CLAUDE.md, docs/PlanetEditor_Manual.md, docs/ai/*.md (движок, каталог, MCP, видео)."
-    ;;
-esac
+echo "=== ПРАВИЛА ВЛАДЕЛЬЦА: прежде чем продолжать или отвечать - прочитать (Read) ЦЕЛИКОМ, до последней строки, КАЖДЫЙ"
+echo "файл ниже (большой - страницами по подсказке offset). Не выборочно, не по памяти, без выжимок (владелец 07.10). ==="
+for f in "$D/CLAUDE.md" "$GE/CLAUDE.md" "$GE/docs/ai/RULES.md" "$PV/CLAUDE.md" "$PV/RULES.md" "$PV/docs/REVIEW.md" \
+         "$PV/docs/BRANCHES.md" "$PV/docs/tasks/README.md" "$PV/server/README.md"; do
+  if [ -f "$f" ]; then
+    echo "- $f (строк: $(wc -l < "$f"))"
+  else
+    echo "- $f - НЕТ КЛОНА: подключить репо (add_repo) и склонировать (GameExport - ветка main-copied в $GE,"
+    echo "  ProjectVanguard - в $PV), потом прочитать"
+  fi
+done
+for r in "$GE" "$PV"; do
+  [ -d "$r/.git" ] && echo "$r - ветка $(git -C "$r" branch --show-current); правила читать свежие (git pull)"
+done
+echo "Затем - журнал задачи в работе (ProjectVanguard docs/tasks/) и открытые PR."

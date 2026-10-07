@@ -1,22 +1,22 @@
 # Для ИИ
 
-> **Сеть правил** (читать вместе: прочитал один - смотри остальные; сначала изучить все, потом делать - владелец 07.10).
-> Главное (выжимка; её выводит хук MshGameExport при старте и после сжатия контекста): общее и редакторы - GameExport
-> `CLAUDE.md`, игра - ProjectVanguard `CLAUDE.md`. Полностью: GameExport (`/home/user/gameexport`, ветка main-copied)
-> `docs/ai/RULES.md`; ProjectVanguard (`/home/user/projectvanguard`) `RULES.md`, `docs/REVIEW.md` - наблюдатель,
-> `docs/BRANCHES.md` - ветки и выпуски, `docs/tasks/README.md` - журналы, `server/README.md` - тест-сервер.
-> **Каждое правило - в одном месте, копий нет** (владелец 07.10): игра - ProjectVanguard, общее и редакторы -
-> GameExport. Частое правило - строкой в «Главное» `CLAUDE.md` своего репо, подробности - в его полном файле.
+> **Сеть правил** (владелец 07.10: сначала изучить все правила, потом делать; каждое правило - в одном месте, копий нет).
+> При старте сессии и **после каждого сжатия контекста** - прежде чем продолжать, прочитать (Read) ЦЕЛИКОМ, до последней
+> строки, все файлы ниже; выжимок и пересказов правил нет (список печатает хук MshGameExport, правило - GameExport
+> `docs/ai/RULES.md`, раздел 1).
+> GameExport (`/home/user/gameexport`, ветка main-copied): `CLAUDE.md`, `docs/ai/RULES.md` - общее, редакторы, земли.
+> ProjectVanguard (`/home/user/projectvanguard`): `CLAUDE.md`, `RULES.md` - игра; `docs/REVIEW.md` - наблюдатель;
+> `docs/BRANCHES.md` - ветки и выпуски; `docs/tasks/README.md` - журналы задач; `server/README.md` - тест-сервер.
+> Новое правило - один раз, в полный файл своего репо: общее и редакторы - GameExport, игра - ProjectVanguard.
 
 Отвечать владельцу **только на русском**.
 
 Правил здесь нет - только вход (каждое правило - в одном месте, владелец 07.10):
-- **PlanetEditor, WorldEditor, земли, общее** - JustHappyFox/GameExport, ветка `main-copied`, клон `/home/user/gameexport`:
-  `CLAUDE.md` (главное), `docs/ai/RULES.md` (полностью). Клона нет - подключить репо и склонировать ветку в эту папку.
-- **Игра «Замок на замок»** - JustHappyFox/ProjectVanguard, клон `/home/user/projectvanguard`: `CLAUDE.md` (главное, в т.ч.
-  наблюдатель и выкладка на сервер владельца), `RULES.md` (полностью).
-- Хук `.claude/hooks/planeteditor_rules.sh` выводит их разделы «Главное» и карту разделов при старте и после каждого
-  сжатия контекста.
+- **PlanetEditor, WorldEditor, земли, общее** - JustHappyFox/GameExport, ветка `main-copied`, клон `/home/user/gameexport`.
+  Клона нет - подключить репо и склонировать ветку в эту папку.
+- **Игра «Замок на замок»** - JustHappyFox/ProjectVanguard, клон `/home/user/projectvanguard`.
+- Хук `.claude/hooks/planeteditor_rules.sh` при старте и после каждого сжатия контекста печатает список файлов правил -
+  их прочитать целиком, прежде чем продолжать.
 
 ## Этот репозиторий
 

@@ -6,23 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh общее"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh редактор"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh игра"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh map-ge"
-          },
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh map-pv"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/planeteditor_rules.sh"
           }
         ]
       }
