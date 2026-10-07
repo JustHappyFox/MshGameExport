@@ -23,7 +23,7 @@ for i, line in enumerate(open(sys.argv[1], encoding="utf-8"), 1):
     h = re.match(r"#{2,3} (.*)", line)
     if h and not prev:  # продолжение заголовка (следующая строка с #) - пропуск
         t = re.sub(r"\s*\((замечани[ея]|указание|передал|договорённость)[^:]*:?\s*", " (", h.group(1))
-        print(f"{i}: {t[:72]}")
+        print(f"{i}: {t[:46]}")
     prev = bool(h)
 ' "$f"
     else
