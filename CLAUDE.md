@@ -18,6 +18,10 @@
 Отдельный репозиторий **JustHappyFox/ProjectVanguard** (клон `/home/user/projectvanguard`): прочитай его `CLAUDE.md`
 и `RULES.md`. Редакторы и данные «Осады» остаются в GameExport.
 
+**Игра работает на сервере владельца** (тест-сервер в WSL на его ПК, `server/README.md` в ProjectVanguard), а не на
+странице claude.ai. Выкладка: сборка -> ветка `builds` -> workflow «Тест-сервер» -> метка `vXX.YY` workflow «Выпуск».
+Страницу claude.ai не обновлять, её ограничения (511 файлов, только «веб»-типы файлов) не учитывать.
+
 ## Этот репозиторий
 
 autoedit.ink — Telegram Mini App и бот (см. README.md).
