@@ -1,14 +1,16 @@
 # Для ИИ
 
 > **Сеть правил** (владелец 07.10: сначала изучить все правила, потом делать; каждое правило - в одном месте, копий нет).
-> **После каждого сжатия контекста, и только тогда** - прежде чем продолжать, прочитать (Read) ЦЕЛИКОМ, до последней
-> строки, все файлы ниже; выжимок и пересказов правил нет (список печатает хук MshGameExport, правило - GameExport
-> `docs/ai/RULES.md`, раздел 1).
-> GameExport (`/home/user/gameexport`, ветка main-copied): `CLAUDE.md`, `docs/ai/RULES.md` - общее, редакторы, земли;
-> `docs/ai/EXPERIMENTS.md` - опыты и выводы; `docs/ai/ENGINE_NOTES.md` - движок; `docs/ai/GAMEDATA.md` - файлы игры.
-> ProjectVanguard (`/home/user/projectvanguard`): `CLAUDE.md`, `RULES.md` - игра; `docs/REVIEW.md` - наблюдатель;
-> `docs/BRANCHES.md` - ветки и выпуски; `docs/tasks/README.md` - журналы задач; `server/README.md` - тест-сервер;
-> `docs/EXPERIMENTS.md` - опыты и выводы; `ARCHITECTURE.md` - устройство игры; журнал задачи в работе.
+> **После каждого сжатия контекста, и только тогда** - прочитать (Read) ЦЕЛИКОМ, до последней строки, основные файлы;
+> справочные - когда задача до них дошла, нужную часть целиком, не по памяти; выжимок и пересказов правил нет (владелец
+> 25.10: перечитывать всё - перерасход; правило - GameExport `docs/ai/RULES.md`, раздел 1; список печатает хук
+> MshGameExport).
+> Основные: GameExport (`/home/user/gameexport`, ветка main-copied) - `CLAUDE.md`, `docs/ai/RULES.md` раздел 1 (общее);
+> ProjectVanguard (`/home/user/projectvanguard`) - `CLAUDE.md`, `RULES.md` (игра), `docs/REVIEW.md` (наблюдатель),
+> `docs/BRANCHES.md` (ветки и выпуски), `docs/tasks/README.md` (журналы задач); журнал задачи в работе.
+> Справочные: игра - `ARCHITECTURE.md` (устройство; раздел правимого модуля), `server/README.md` (сервер, панель),
+> `docs/EXPERIMENTS.md` (опыты; перед опытом - поиск по нему); редакторы, земли, данные «Осады» - GameExport
+> `docs/ai/RULES.md` разделы 2-6, `docs/ai/EXPERIMENTS.md`, `docs/ai/ENGINE_NOTES.md`, `docs/ai/GAMEDATA.md`.
 > Новое правило - один раз, в полный файл своего репо: общее и редакторы - GameExport, игра - ProjectVanguard.
 
 Отвечать владельцу **только на русском**.
